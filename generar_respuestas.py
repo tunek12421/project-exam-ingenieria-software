@@ -1,6 +1,8 @@
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+IMG_DIR = '/home/tunek/Descargas/DOCUMENTACION/project-exam/docs/capturas'
 
 doc = Document()
 
@@ -188,6 +190,28 @@ p = doc.add_paragraph()
 run = p.add_run('$ python3 -m pytest -v\n21 passed in 0.39s')
 run.font.name = 'Consolas'
 run.font.size = Pt(9)
+
+doc.add_page_break()
+
+# ========================
+# CAPTURAS
+# ========================
+doc.add_heading('Capturas del sistema', level=1)
+
+capturas = [
+    ('2.png', 'Vista principal con listas de tareas y progreso'),
+    ('3.png', 'Formulario para crear nueva tarea'),
+    ('4.png', 'Validacion de campo obligatorio'),
+    ('5.png', 'Agregar subtarea a una tarea'),
+    ('6.png', 'Subtareas expandidas con timeline y checklist'),
+]
+
+for archivo, descripcion in capturas:
+    doc.add_paragraph(descripcion)
+    doc.add_picture(f'{IMG_DIR}/{archivo}', width=Inches(4.5))
+    p = doc.paragraphs[-1]
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.add_paragraph()
 
 output = '/home/tunek/Descargas/DOCUMENTACION/project-exam/Examen_Final_Respuestas.docx'
 doc.save(output)
