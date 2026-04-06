@@ -1,3 +1,4 @@
+from backend.src.config.database import TITLE_MAX_LENGTH
 from backend.src.models.task_model import Task
 from backend.src.repositories.task_repository import TaskRepository
 
@@ -36,25 +37,28 @@ class TaskService:
 
     def complete_task(self, task_id):
         """Marca una tarea como completada."""
-        task = self.repository.find_by_id(task_id)
-        if not task:
-            raise TaskNotFoundError(f"No se encontro la tarea con ID {task_id}")
+        task = self._find_task_or_raise(task_id)
         self.repository.update_status(task_id, True)
         task.is_completed = True
         return task
 
     def delete_task(self, task_id):
         """Elimina una tarea por su ID."""
+        self._find_task_or_raise(task_id)
+        self.repository.delete(task_id)
+
+    def _find_task_or_raise(self, task_id):
+        """Busca una tarea o lanza TaskNotFoundError si no existe."""
         task = self.repository.find_by_id(task_id)
         if not task:
             raise TaskNotFoundError(f"No se encontro la tarea con ID {task_id}")
-        self.repository.delete(task_id)
+        return task
 
     def _validate_title(self, title):
         """Valida que el titulo no este vacio ni sea demasiado largo."""
         if not title or not title.strip():
             raise ValidationError("El titulo de la tarea no puede estar vacio")
         title = title.strip()
-        if len(title) > 200:
-            raise ValidationError("El titulo no puede exceder 200 caracteres")
+        if len(title) > TITLE_MAX_LENGTH:
+            raise ValidationError(f"El titulo no puede exceder {TITLE_MAX_LENGTH} caracteres")
         return title

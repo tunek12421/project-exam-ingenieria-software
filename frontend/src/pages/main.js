@@ -31,13 +31,22 @@ function toggleForm() {
 
 async function handleCreateTask(event) {
     event.preventDefault();
-    const title = document.getElementById('input-title').value;
-    const description = document.getElementById('input-description').value;
+    const titleInput = document.getElementById('input-title');
+    const descInput = document.getElementById('input-description');
+    const title = titleInput.value.trim();
+    const description = descInput.value.trim();
+
+    if (!title) {
+        alert('El titulo no puede estar vacio');
+        return;
+    }
+
     try {
         await ApiService.createTask(title, description);
-        document.getElementById('input-title').value = '';
-        document.getElementById('input-description').value = '';
+        titleInput.value = '';
+        descInput.value = '';
         toggleForm();
+        showNotification('Tarea creada correctamente');
         loadTasks();
     } catch (error) {
         alert(error.message);
@@ -47,6 +56,7 @@ async function handleCreateTask(event) {
 async function handleCompleteTask(taskId) {
     try {
         await ApiService.completeTask(taskId);
+        showNotification('Tarea completada');
         loadTasks();
     } catch (error) {
         alert('Error al completar la tarea');
@@ -54,9 +64,10 @@ async function handleCompleteTask(taskId) {
 }
 
 async function handleDeleteTask(taskId) {
-    if (!confirm('¿Eliminar esta tarea?')) return;
+    if (!confirm('Eliminar esta tarea?')) return;
     try {
         await ApiService.deleteTask(taskId);
+        showNotification('Tarea eliminada');
         loadTasks();
     } catch (error) {
         alert('Error al eliminar la tarea');
@@ -68,4 +79,12 @@ function filterTasks(filter, button) {
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
     loadTasks();
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 2500);
 }
