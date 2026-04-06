@@ -114,6 +114,7 @@ async function handleAddSubtask(listId) {
     try {
         await ApiService.addSubtask(listId, title);
         input.value = '';
+        openSubtaskForms.delete(listId);
         showNotification('Subtarea agregada');
         loadTaskLists();
     } catch (error) {
