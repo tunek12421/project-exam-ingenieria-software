@@ -1,163 +1,124 @@
 # Task List - Sistema de Gestion de Tareas
 
-Aplicacion web para la gestion de tareas internas de un equipo de trabajo.
+Aplicacion web para gestionar tareas con subtareas, progreso visual y checklist tipo Trello.
 
 **Repositorio:** https://github.com/tunek12421/project-exam-ingenieria-software
-**Rama:** `examen-final`
+**Rama:** `examen-enrique-lujan`
 
-## Tecnologias utilizadas
+## Tecnologias
 
-- **Backend:** Python 3 con Flask
+- **Backend:** Python 3 + Flask
 - **Frontend:** HTML5, CSS3, JavaScript vanilla
-- **Base de datos:** SQLite
-- **Pruebas:** unittest + pytest (12 tests)
+- **BD:** SQLite
+- **Pruebas:** unittest + pytest (21 tests)
 - **Contenedores:** Docker + Docker Compose
 
-## Estructura del proyecto
+## Estructura
 
 ```
 project-exam/
 ├── backend/
 │   ├── src/
-│   │   ├── config/         # Configuracion de BD + constantes (context manager)
-│   │   ├── controllers/    # Endpoints REST (Flask Blueprints)
+│   │   ├── config/         # Conexion BD (context manager) + constantes
+│   │   ├── controllers/    # Endpoints REST
 │   │   ├── services/       # Logica de negocio y validaciones
-│   │   ├── models/         # Modelo de datos Task
-│   │   ├── repositories/   # Acceso a datos (queries SQL con _BASE_SELECT)
-│   │   └── routes/
-│   ├── tests/              # Pruebas unitarias (8 tests)
-│   └── main.py             # Punto de entrada del servidor
+│   │   ├── models/         # Modelos TaskList y Subtask
+│   │   └── repositories/   # Acceso a datos SQL
+│   └── tests/              # 15 pruebas unitarias
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # Componentes reutilizables (task_card)
-│   │   ├── pages/          # Logica de paginas (main + notificaciones)
-│   │   ├── services/       # Cliente HTTP para consumir la API
-│   │   └── assets/         # Estilos CSS + animaciones
+│   │   ├── components/     # Tarjeta de tarea con timeline
+│   │   ├── pages/          # Logica principal + estado de paneles
+│   │   ├── services/       # Cliente API
+│   │   └── assets/         # CSS (progreso circular, timeline, toast)
 │   └── index.html
 ├── database/
-│   ├── schema.sql          # Esquema de la base de datos
+│   ├── schema.sql          # Tablas task_lists y subtasks (FK CASCADE)
 │   └── seed.sql            # Datos iniciales
-├── docs/
-│   └── architecture.md     # Documentacion arquitectonica
-├── tests/
-│   └── integration/        # Pruebas de integracion (4 tests)
-├── Dockerfile              # Imagen Python 3.12-slim
-├── docker-compose.yml      # Orquestacion con volumen persistente
-├── requirements.txt        # Dependencias (Flask)
-├── .gitignore
-├── .dockerignore
+├── docs/architecture.md
+├── tests/integration/      # 6 pruebas de integracion
+├── Dockerfile
+├── docker-compose.yml
 └── README.md
 ```
 
-## Analisis Arquitectonico (Actividad 2)
+## Arquitectura (Actividad 2)
 
-### 1. Tipo de arquitectura
+**Arquitectura por capas:**
 
-El proyecto implementa una **arquitectura por capas (Layered Architecture)** con separacion clara de responsabilidades:
-
-- **Capa de presentacion (Frontend):** Interfaz de usuario con HTML/CSS/JS que se comunica con el backend via API REST.
-- **Capa de controladores:** Recibe las peticiones HTTP y delega al servicio correspondiente.
-- **Capa de servicios (Logica de negocio):** Contiene las reglas de negocio y validaciones.
-- **Capa de repositorios (Acceso a datos):** Encapsula las consultas a la base de datos.
-- **Capa de modelos:** Define las entidades del dominio.
-
-### 2. Modulos y componentes identificados
+Frontend (HTML/JS) → Controllers → Services → Repositories → SQLite
 
 | Modulo | Responsabilidad |
 |--------|----------------|
-| `config/database.py` | Conexion SQLite con context manager + constante TITLE_MAX_LENGTH |
-| `models/task_model.py` | Modelo de datos Task con serializacion y deserializacion |
-| `repositories/task_repository.py` | CRUD a nivel de base de datos con _BASE_SELECT |
-| `services/task_service.py` | Validaciones y logica de negocio |
-| `controllers/task_controller.py` | Endpoints REST de la API |
-| `frontend/src/services/` | Cliente HTTP para consumir la API |
-| `frontend/src/components/` | Componentes visuales reutilizables |
+| `config/database.py` | Conexion SQLite con context manager + TITLE_MAX_LENGTH |
+| `models/task_model.py` | Modelos TaskList (con progreso) y Subtask |
+| `repositories/task_repository.py` | CRUD con _BASE_SELECT (DRY) |
+| `services/task_service.py` | Validaciones y reglas de negocio |
+| `controllers/task_controller.py` | 6 endpoints REST |
+| `frontend/src/components/` | Tarjeta con circulo de progreso y timeline |
 
-### 3. Mejoras arquitectonicas propuestas
+**Mejoras propuestas:** migraciones Alembic, autenticacion JWT, middleware de errores, migrar a Vue/React.
 
-1. **Inyeccion de dependencias formal:** Usar un contenedor de DI para desacoplar las capas (actualmente se hace manualmente en el constructor del servicio).
-2. **Migraciones de base de datos:** Implementar un sistema de migraciones (ej. Alembic) en lugar de ejecutar schema.sql directamente.
-3. **Manejo centralizado de errores:** Crear un middleware de errores en Flask para unificar las respuestas de error.
-4. **Autenticacion y autorizacion:** Agregar JWT o sesiones para proteger los endpoints.
-5. **Framework frontend:** Migrar a un framework como Vue.js o React para mejor mantenibilidad a medida que crezca la aplicacion.
+## Refactorizacion (Actividad 3)
 
-## Refactorizacion realizada (Actividad 3)
+| Code Smell | Solucion |
+|-----------|----------|
+| Conexiones BD sin cierre seguro | Context manager `@contextmanager` |
+| Query SQL repetida 3 veces | Constante `_BASE_SELECT` |
+| Import datetime sin usar | Eliminado |
+| Magic number 200 | Constante `TITLE_MAX_LENGTH` |
+| Validacion duplicada en service | Metodo `_find_list_or_raise()` |
+| Sin validacion en frontend | `trim()` + check vacio |
+| Sin feedback de exito | Notificaciones toast |
+| Paneles se cerraban al toggle | Estado preservado con `Set` |
+| Request sin JSON daba 415 | `get_json(silent=True)` retorna 400 |
 
-### Code smells identificados y corregidos
+## Funcionalidad (Actividad 4)
 
-| Code Smell | Problema | Solucion |
-|-----------|----------|----------|
-| Resource Leak | Conexiones BD sin try/finally | Context manager `@contextmanager` en `get_database_connection()` |
-| SQL duplicado | Misma query SELECT en 3 metodos | Constante de clase `_BASE_SELECT` (principio DRY) |
-| Import sin usar | `from datetime import datetime` en task_model.py | Eliminado |
-| Magic number | `200` hardcodeado para longitud de titulo | Constante `TITLE_MAX_LENGTH` en config |
-| Codigo duplicado | Validacion de tarea existente repetida en service | Metodo `_find_task_or_raise()` |
-| Sin validacion frontend | Datos enviados sin validar | `trim()` + check vacio antes de enviar |
-| Sin feedback UX | Solo alertas de error | Notificaciones toast con animacion CSS |
+- Crear tareas con titulo y descripcion
+- Agregar subtareas dentro de cada tarea (checklist)
+- Marcar y desmarcar subtareas (toggle)
+- Circulo de progreso SVG segun % completado
+- Expandir/colapsar subtareas con timeline (linea + dots)
+- Eliminar tareas (cascade) y subtareas
+- Validacion de campos vacios (front y back)
+- Notificaciones toast
+- Estado de paneles se preserva al interactuar
 
-## Funcionalidad implementada (Actividad 4)
-
-- Registrar nueva tarea (con titulo y descripcion)
-- Listar todas las tareas
-- Filtrar tareas pendientes
-- Marcar tarea como completada
-- Eliminar tarea con confirmacion
-- Validacion de datos vacios (backend y frontend)
-- Notificaciones visuales de exito
-
-### Endpoints API REST
+### Endpoints API
 
 | Metodo | Endpoint | Descripcion |
 |--------|----------|-------------|
-| GET | `/api/tasks` | Listar todas las tareas |
-| GET | `/api/tasks?filter=pending` | Listar tareas pendientes |
-| POST | `/api/tasks` | Crear nueva tarea |
-| PATCH | `/api/tasks/<id>/complete` | Marcar como completada |
-| DELETE | `/api/tasks/<id>` | Eliminar tarea |
+| GET | `/api/task-lists` | Listar tareas con subtareas y progreso |
+| POST | `/api/task-lists` | Crear tarea |
+| DELETE | `/api/task-lists/<id>` | Eliminar tarea (cascade) |
+| POST | `/api/task-lists/<id>/subtasks` | Agregar subtarea |
+| PATCH | `/api/subtasks/<id>/toggle` | Marcar/desmarcar subtarea |
+| DELETE | `/api/subtasks/<id>` | Eliminar subtarea |
 
-## Pruebas de software (Actividad 5)
+## Pruebas (Actividad 5)
 
-**12 pruebas automatizadas** (8 unitarias + 4 de integracion). Todas pasan correctamente.
+**21 pruebas** (15 unitarias + 6 integracion). Todas pasan.
 
-### Pruebas unitarias (backend/tests/test_task_service.py)
-- Crear tarea con datos validos
-- Titulo vacio lanza ValidationError
-- Titulo con solo espacios es rechazado
-- Titulo mayor a 200 caracteres es rechazado
-- Completar tarea existente
-- Completar tarea inexistente lanza error
-- Eliminar tarea inexistente lanza error
-- Obtener todas las tareas
+**Unitarias:** crear lista, titulo vacio/espacios/largo, eliminar lista, agregar subtarea, toggle on/off, subtarea inexistente, obtener listas, progreso 0%/25%/100%.
 
-### Pruebas de integracion (tests/integration/test_api_integration.py)
-- Flujo completo: crear tarea y verificar en listado
-- Crear sin titulo retorna error 400
-- Crear y luego completar una tarea
-- Eliminar inexistente retorna 404
+**Integracion:** crear y listar, error 400, progreso con subtareas, toggle check/uncheck, cascade delete, error 404.
 
 ## Como ejecutar
 
-### Con Docker (recomendado)
 ```bash
+# Con Docker
 docker compose up --build
-```
-El servidor inicia en `http://localhost:5000`
 
-### Sin Docker
-```bash
+# Sin Docker
 pip install -r requirements.txt
 python3 -m backend.src.main
 ```
 
-## Como ejecutar las pruebas
+Servidor en `http://localhost:5000`
+
+## Pruebas
 
 ```bash
-# Todas las pruebas
 python3 -m pytest -v
-
-# Solo unitarias
-python3 -m pytest backend/tests/ -v
-
-# Solo integracion
-python3 -m pytest tests/integration/ -v
 ```
