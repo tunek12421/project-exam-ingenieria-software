@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - task-data:/app/database
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
+
+volumes:
+  task-data:
