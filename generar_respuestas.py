@@ -198,7 +198,7 @@ doc.add_page_break()
 # ========================
 doc.add_heading('Capturas del sistema', level=1)
 
-capturas = [
+capturas_app = [
     ('2.png', 'Vista principal con listas de tareas y progreso'),
     ('3.png', 'Formulario para crear nueva tarea'),
     ('4.png', 'Validacion de campo obligatorio'),
@@ -206,11 +206,28 @@ capturas = [
     ('6.png', 'Subtareas expandidas con timeline y checklist'),
 ]
 
-for archivo, descripcion in capturas:
+for archivo, descripcion in capturas_app:
     doc.add_paragraph(descripcion)
     doc.add_picture(f'{IMG_DIR}/{archivo}', width=Inches(4.5))
-    p = doc.paragraphs[-1]
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.add_paragraph()
+
+doc.add_page_break()
+
+doc.add_heading('Evidencia de pruebas y entorno', level=1)
+
+capturas_terminal = [
+    ('tests.png', 'Ejecucion de pruebas - 21 passed'),
+    ('git_log.png', 'Historial de commits'),
+    ('git_branch.png', 'Rama de trabajo'),
+    ('docker_ps.png', 'Contenedor Docker corriendo'),
+    ('estructura.png', 'Estructura de archivos del proyecto'),
+]
+
+for archivo, descripcion in capturas_terminal:
+    doc.add_paragraph(descripcion)
+    doc.add_picture(f'{IMG_DIR}/{archivo}', width=Inches(5.5))
+    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     doc.add_paragraph()
 
 output = '/home/tunek/Descargas/DOCUMENTACION/project-exam/Examen_Final_Respuestas.docx'
