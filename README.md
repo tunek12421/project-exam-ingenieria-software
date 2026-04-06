@@ -2,12 +2,16 @@
 
 Aplicacion web para la gestion de tareas internas de un equipo de trabajo.
 
+**Repositorio:** https://github.com/tunek12421/project-exam-ingenieria-software
+**Rama:** `examen-final`
+
 ## Tecnologias utilizadas
 
 - **Backend:** Python 3 con Flask
 - **Frontend:** HTML5, CSS3, JavaScript vanilla
 - **Base de datos:** SQLite
-- **Pruebas:** unittest (Python)
+- **Pruebas:** unittest + pytest (12 tests)
+- **Contenedores:** Docker + Docker Compose
 
 ## Estructura del proyecto
 
@@ -15,28 +19,34 @@ Aplicacion web para la gestion de tareas internas de un equipo de trabajo.
 project-exam/
 ├── backend/
 │   ├── src/
-│   │   ├── config/         # Configuracion de base de datos
-│   │   ├── controllers/    # Controladores (endpoints REST)
-│   │   ├── services/       # Logica de negocio
-│   │   ├── models/         # Modelos de datos
-│   │   ├── repositories/   # Acceso a datos (queries SQL)
+│   │   ├── config/         # Configuracion de BD + constantes (context manager)
+│   │   ├── controllers/    # Endpoints REST (Flask Blueprints)
+│   │   ├── services/       # Logica de negocio y validaciones
+│   │   ├── models/         # Modelo de datos Task
+│   │   ├── repositories/   # Acceso a datos (queries SQL con _BASE_SELECT)
 │   │   └── routes/
-│   ├── tests/              # Pruebas unitarias
+│   ├── tests/              # Pruebas unitarias (8 tests)
 │   └── main.py             # Punto de entrada del servidor
 ├── frontend/
 │   ├── src/
 │   │   ├── components/     # Componentes reutilizables (task_card)
-│   │   ├── pages/          # Logica de paginas (main)
-│   │   ├── services/       # Comunicacion con la API
-│   │   └── assets/         # Estilos CSS
+│   │   ├── pages/          # Logica de paginas (main + notificaciones)
+│   │   ├── services/       # Cliente HTTP para consumir la API
+│   │   └── assets/         # Estilos CSS + animaciones
 │   └── index.html
 ├── database/
 │   ├── schema.sql          # Esquema de la base de datos
 │   └── seed.sql            # Datos iniciales
 ├── docs/
 │   └── architecture.md     # Documentacion arquitectonica
-└── tests/
-    └── integration/        # Pruebas de integracion
+├── tests/
+│   └── integration/        # Pruebas de integracion (4 tests)
+├── Dockerfile              # Imagen Python 3.12-slim
+├── docker-compose.yml      # Orquestacion con volumen persistente
+├── requirements.txt        # Dependencias (Flask)
+├── .gitignore
+├── .dockerignore
+└── README.md
 ```
 
 ## Analisis Arquitectonico (Actividad 2)
@@ -55,9 +65,9 @@ El proyecto implementa una **arquitectura por capas (Layered Architecture)** con
 
 | Modulo | Responsabilidad |
 |--------|----------------|
-| `config/database.py` | Conexion y configuracion de SQLite |
-| `models/task_model.py` | Modelo de datos Task con serializacion |
-| `repositories/task_repository.py` | CRUD a nivel de base de datos |
+| `config/database.py` | Conexion SQLite con context manager + constante TITLE_MAX_LENGTH |
+| `models/task_model.py` | Modelo de datos Task con serializacion y deserializacion |
+| `repositories/task_repository.py` | CRUD a nivel de base de datos con _BASE_SELECT |
 | `services/task_service.py` | Validaciones y logica de negocio |
 | `controllers/task_controller.py` | Endpoints REST de la API |
 | `frontend/src/services/` | Cliente HTTP para consumir la API |
@@ -73,9 +83,17 @@ El proyecto implementa una **arquitectura por capas (Layered Architecture)** con
 
 ## Refactorizacion realizada (Actividad 3)
 
-1. **Separacion en capas:** El codigo se organizo en Controller → Service → Repository → Model, eliminando logica mezclada.
-2. **Nombres claros y descriptivos:** Se usaron nombres como `find_pending()`, `create_task()`, `_validate_title()` en lugar de nombres genericos.
-3. **Validaciones extraidas:** La validacion del titulo se extrajo a un metodo privado `_validate_title()` en el servicio, separando la logica de validacion de la logica de creacion.
+### Code smells identificados y corregidos
+
+| Code Smell | Problema | Solucion |
+|-----------|----------|----------|
+| Resource Leak | Conexiones BD sin try/finally | Context manager `@contextmanager` en `get_database_connection()` |
+| SQL duplicado | Misma query SELECT en 3 metodos | Constante de clase `_BASE_SELECT` (principio DRY) |
+| Import sin usar | `from datetime import datetime` en task_model.py | Eliminado |
+| Magic number | `200` hardcodeado para longitud de titulo | Constante `TITLE_MAX_LENGTH` en config |
+| Codigo duplicado | Validacion de tarea existente repetida en service | Metodo `_find_task_or_raise()` |
+| Sin validacion frontend | Datos enviados sin validar | `trim()` + check vacio antes de enviar |
+| Sin feedback UX | Solo alertas de error | Notificaciones toast con animacion CSS |
 
 ## Funcionalidad implementada (Actividad 4)
 
@@ -83,31 +101,63 @@ El proyecto implementa una **arquitectura por capas (Layered Architecture)** con
 - Listar todas las tareas
 - Filtrar tareas pendientes
 - Marcar tarea como completada
-- Eliminar tarea
-- Validacion de datos vacios
+- Eliminar tarea con confirmacion
+- Validacion de datos vacios (backend y frontend)
+- Notificaciones visuales de exito
+
+### Endpoints API REST
+
+| Metodo | Endpoint | Descripcion |
+|--------|----------|-------------|
+| GET | `/api/tasks` | Listar todas las tareas |
+| GET | `/api/tasks?filter=pending` | Listar tareas pendientes |
+| POST | `/api/tasks` | Crear nueva tarea |
+| PATCH | `/api/tasks/<id>/complete` | Marcar como completada |
+| DELETE | `/api/tasks/<id>` | Eliminar tarea |
+
+## Pruebas de software (Actividad 5)
+
+**12 pruebas automatizadas** (8 unitarias + 4 de integracion). Todas pasan correctamente.
+
+### Pruebas unitarias (backend/tests/test_task_service.py)
+- Crear tarea con datos validos
+- Titulo vacio lanza ValidationError
+- Titulo con solo espacios es rechazado
+- Titulo mayor a 200 caracteres es rechazado
+- Completar tarea existente
+- Completar tarea inexistente lanza error
+- Eliminar tarea inexistente lanza error
+- Obtener todas las tareas
+
+### Pruebas de integracion (tests/integration/test_api_integration.py)
+- Flujo completo: crear tarea y verificar en listado
+- Crear sin titulo retorna error 400
+- Crear y luego completar una tarea
+- Eliminar inexistente retorna 404
 
 ## Como ejecutar
 
+### Con Docker (recomendado)
 ```bash
-# Instalar dependencias
-pip install flask
-
-# Ejecutar el servidor
-cd project-exam
-python -m backend.src.main
+docker compose up --build
 ```
-
 El servidor inicia en `http://localhost:5000`
+
+### Sin Docker
+```bash
+pip install -r requirements.txt
+python3 -m backend.src.main
+```
 
 ## Como ejecutar las pruebas
 
 ```bash
-# Pruebas unitarias
-python -m pytest backend/tests/ -v
-
-# Pruebas de integracion
-python -m pytest tests/integration/ -v
-
 # Todas las pruebas
-python -m pytest -v
+python3 -m pytest -v
+
+# Solo unitarias
+python3 -m pytest backend/tests/ -v
+
+# Solo integracion
+python3 -m pytest tests/integration/ -v
 ```
