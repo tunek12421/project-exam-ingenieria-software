@@ -1,3 +1,6 @@
+const expandedLists = new Set();
+const openSubtaskForms = new Set();
+
 document.addEventListener('DOMContentLoaded', () => {
     loadTaskLists();
 });
@@ -13,6 +16,15 @@ async function loadTaskLists() {
         }
         lists.forEach(list => {
             container.appendChild(createTaskListCard(list));
+            // Restaurar paneles abiertos
+            if (expandedLists.has(list.id)) {
+                document.getElementById(`subtasks-${list.id}`).classList.add('open');
+                const btn = document.querySelector(`#list-${list.id} .btn-expand`);
+                if (btn) btn.classList.add('expanded');
+            }
+            if (openSubtaskForms.has(list.id)) {
+                document.getElementById(`add-subtask-${list.id}`).classList.add('open');
+            }
         });
     } catch (error) {
         container.innerHTML = '<div class="empty-state">Error al cargar las listas</div>';
@@ -56,6 +68,8 @@ async function handleDeleteList(listId) {
     if (!confirm('Eliminar esta lista y todas sus subtareas?')) return;
     try {
         await ApiService.deleteTaskList(listId);
+        expandedLists.delete(listId);
+        openSubtaskForms.delete(listId);
         showNotification('Lista eliminada');
         loadTaskLists();
     } catch (error) {
@@ -68,13 +82,23 @@ function toggleExpand(listId, button) {
     const panel = document.getElementById(`subtasks-${listId}`);
     panel.classList.toggle('open');
     button.classList.toggle('expanded');
+
+    if (expandedLists.has(listId)) {
+        expandedLists.delete(listId);
+    } else {
+        expandedLists.add(listId);
+    }
 }
 
 // --- Subtasks ---
 function toggleAddSubtask(listId) {
     const form = document.getElementById(`add-subtask-${listId}`);
     form.classList.toggle('open');
-    if (form.classList.contains('open')) {
+
+    if (openSubtaskForms.has(listId)) {
+        openSubtaskForms.delete(listId);
+    } else {
+        openSubtaskForms.add(listId);
         document.getElementById(`input-subtask-${listId}`).focus();
     }
 }
