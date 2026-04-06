@@ -16,17 +16,23 @@ function createProgressCircle(progress) {
     `;
 }
 
-function createSubtaskItem(subtask) {
+function createSubtaskItem(subtask, isLast) {
     const completedClass = subtask.is_completed ? 'completed' : '';
     const checkmark = subtask.is_completed ? '&#10003;' : '';
+    const lastClass = isLast ? 'last' : '';
 
     return `
-        <div class="subtask-item ${completedClass}">
-            <div class="subtask-checkbox" onclick="handleToggleSubtask(${subtask.id})">
-                ${checkmark}
+        <div class="subtask-row ${lastClass}">
+            <div class="subtask-item ${completedClass}">
+                <div class="subtask-checkbox" onclick="handleToggleSubtask(${subtask.id})">
+                    ${checkmark}
+                </div>
+                <span class="subtask-title">${escapeHtml(subtask.title)}</span>
+                <button class="subtask-delete" onclick="handleDeleteSubtask(${subtask.id})">&#128465;</button>
             </div>
-            <span class="subtask-title">${escapeHtml(subtask.title)}</span>
-            <button class="subtask-delete" onclick="handleDeleteSubtask(${subtask.id})">&#128465;</button>
+            <div class="timeline-connector">
+                <div class="timeline-dot"></div>
+            </div>
         </div>
     `;
 }
@@ -37,7 +43,7 @@ function createTaskListCard(taskList) {
     card.id = `list-${taskList.id}`;
 
     const subtasksHtml = taskList.subtasks.length > 0
-        ? taskList.subtasks.map(s => createSubtaskItem(s)).join('')
+        ? taskList.subtasks.map((s, i) => createSubtaskItem(s, i === taskList.subtasks.length - 1)).join('')
         : '<div class="subtasks-empty">No hay subtareas</div>';
 
     card.innerHTML = `
@@ -48,7 +54,7 @@ function createTaskListCard(taskList) {
                 ${taskList.description ? `<div class="task-list-desc">${escapeHtml(taskList.description)}</div>` : ''}
             </div>
             <div class="task-list-actions">
-                <button class="btn-icon btn-delete" onclick="handleDeleteList(${taskList.id})" title="Eliminar lista">&#128465;</button>
+                <button class="btn-icon btn-delete" onclick="handleDeleteList(${taskList.id})" title="Eliminar">&#128465;</button>
                 <button class="btn-icon btn-expand" onclick="toggleExpand(${taskList.id}, this)" title="Expandir">&#8744;&#8744;</button>
                 <button class="btn-icon btn-add-subtask" onclick="toggleAddSubtask(${taskList.id})" title="Agregar subtarea">+</button>
             </div>

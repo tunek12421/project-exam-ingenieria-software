@@ -258,6 +258,57 @@ body {
     display: block;
 }
 
+/* Subtask Row - with timeline */
+.subtask-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+}
+
+/* Timeline connector (right side) */
+.timeline-connector {
+    width: 24px;
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Vertical line */
+.timeline-connector::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: #ddd;
+    transform: translateX(-50%);
+}
+
+/* Cut the line at the last item */
+.subtask-row.last .timeline-connector::before {
+    bottom: 50%;
+}
+
+/* Dot on the line */
+.timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ddd;
+    border: 2px solid #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.subtask-row .subtask-item.completed ~ .timeline-connector .timeline-dot {
+    background: #f5a623;
+}
+
 /* Subtask Item */
 .subtask-item {
     display: flex;
@@ -265,8 +316,9 @@ body {
     padding: 10px 12px;
     background: #fff;
     border-radius: 10px;
-    margin-bottom: 6px;
+    margin: 3px 0;
     gap: 10px;
+    flex: 1;
 }
 
 .subtask-checkbox {
