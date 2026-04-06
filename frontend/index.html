@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List - Gestor de Tareas</title>
+    <link rel="stylesheet" href="src/assets/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Task List</h1>
+            <button id="btn-new-task" class="btn-new" onclick="toggleForm()">+ New</button>
+        </header>
+
+        <form id="task-form" class="task-form hidden" onsubmit="handleCreateTask(event)">
+            <input type="text" id="input-title" placeholder="Titulo de la tarea" required maxlength="200">
+            <textarea id="input-description" placeholder="Descripcion (opcional)" rows="2"></textarea>
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Guardar</button>
+                <button type="button" class="btn-cancel" onclick="toggleForm()">Cancelar</button>
+            </div>
+        </form>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterTasks('all', this)">Todas</button>
+            <button class="filter-btn" onclick="filterTasks('pending', this)">Pendientes</button>
+        </div>
+
+        <div id="task-list" class="task-list">
+            <!-- Las tareas se renderizan aqui -->
+        </div>
+    </div>
+
+    <script src="src/services/api_service.js"></script>
+    <script src="src/components/task_card.js"></script>
+    <script src="src/pages/main.js"></script>
+</body>
+</html>
