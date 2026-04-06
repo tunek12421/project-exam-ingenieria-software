@@ -21,6 +21,7 @@ body {
     overflow: hidden;
 }
 
+/* Header */
 .app-header {
     background: linear-gradient(135deg, #f5a623, #f7c948);
     padding: 24px;
@@ -28,6 +29,17 @@ body {
     justify-content: space-between;
     align-items: center;
     color: #fff;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .app-header h1 {
@@ -50,17 +62,19 @@ body {
     background: #fff8e1;
 }
 
-.task-form {
+/* Forms */
+.list-form, .subtask-form {
     padding: 16px 24px;
     border-bottom: 1px solid #eee;
 }
 
-.task-form.hidden {
+.list-form.hidden, .subtask-form.hidden {
     display: none;
 }
 
-.task-form input,
-.task-form textarea {
+.list-form input,
+.list-form textarea,
+.subtask-form input {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #ddd;
@@ -94,54 +108,170 @@ body {
     cursor: pointer;
 }
 
-.filter-bar {
+/* Task Lists Container */
+.task-lists-container {
+    padding: 12px 16px 16px;
+}
+
+/* Task List Card */
+.task-list-card {
+    background: #fafafa;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.task-list-card:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.task-list-header {
     display: flex;
-    gap: 8px;
-    padding: 12px 24px;
+    align-items: center;
+    padding: 14px 12px;
+    gap: 12px;
 }
 
-.filter-btn {
-    background: #f0f0f0;
+/* Progress Circle */
+.progress-circle {
+    width: 52px;
+    height: 52px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.progress-circle svg {
+    transform: rotate(-90deg);
+    width: 52px;
+    height: 52px;
+}
+
+.progress-circle .bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 4;
+}
+
+.progress-circle .fg {
+    fill: none;
+    stroke: #f5a623;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.4s ease;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: #f5a623;
+}
+
+/* Task List Info */
+.task-list-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-list-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.task-list-desc {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Action Buttons */
+.task-list-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.btn-icon {
+    background: none;
     border: none;
-    padding: 6px 16px;
-    border-radius: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
-    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #ccc;
+    transition: all 0.2s;
 }
 
-.filter-btn.active {
+.btn-icon:hover {
+    background: #f0f0f0;
+}
+
+.btn-delete:hover {
+    color: #e74c3c;
+    background: #ffeaea;
+}
+
+.btn-expand {
+    color: #f5a623;
+    background: #fff8e1;
+}
+
+.btn-expand:hover {
     background: #f5a623;
     color: #fff;
 }
 
-.task-list {
-    padding: 0 16px 16px;
+.btn-expand.expanded {
+    transform: rotate(180deg);
 }
 
-.task-card {
-    background: #fafafa;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 10px;
+.btn-add-subtask {
+    color: #999;
+    background: #f5f5f5;
+}
+
+.btn-add-subtask:hover {
+    color: #f5a623;
+    background: #fff8e1;
+}
+
+/* Subtasks Panel */
+.subtasks-panel {
+    display: none;
+    padding: 0 12px 12px;
+}
+
+.subtasks-panel.open {
+    display: block;
+}
+
+/* Subtask Item */
+.subtask-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.2s;
+    padding: 10px 12px;
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    gap: 10px;
 }
 
-.task-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.task-card.completed .task-title {
-    text-decoration: line-through;
-    color: #aaa;
-}
-
-.task-checkbox {
-    width: 28px;
-    height: 28px;
+.subtask-checkbox {
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 2px solid #f5a623;
     display: flex;
@@ -149,44 +279,71 @@ body {
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
+    font-size: 14px;
     color: transparent;
-    font-size: 16px;
+    transition: all 0.2s;
 }
 
-.task-card.completed .task-checkbox {
+.subtask-checkbox:hover {
+    background: #fff8e1;
+}
+
+.subtask-item.completed .subtask-checkbox {
     background: #f5a623;
     color: #fff;
 }
 
-.task-info {
+.subtask-title {
     flex: 1;
-}
-
-.task-title {
-    font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
     color: #333;
 }
 
-.task-description {
-    font-size: 13px;
-    color: #999;
-    margin-top: 2px;
+.subtask-item.completed .subtask-title {
+    text-decoration: line-through;
+    color: #aaa;
 }
 
-.task-delete {
+.subtask-delete {
     background: none;
     border: none;
-    color: #ccc;
-    font-size: 18px;
+    color: #ddd;
+    font-size: 16px;
     cursor: pointer;
-    padding: 4px;
+    padding: 2px 4px;
 }
 
-.task-delete:hover {
+.subtask-delete:hover {
     color: #e74c3c;
 }
 
+/* Add Subtask Inline Form */
+.add-subtask-inline {
+    display: none;
+    padding: 0 12px 12px;
+}
+
+.add-subtask-inline.open {
+    display: flex;
+    gap: 8px;
+}
+
+.add-subtask-inline input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.add-subtask-inline .btn-save {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+/* Empty State */
 .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -194,6 +351,14 @@ body {
     font-size: 14px;
 }
 
+.subtasks-empty {
+    text-align: center;
+    padding: 12px;
+    color: #ccc;
+    font-size: 12px;
+}
+
+/* Notification Toast */
 .notification {
     position: fixed;
     bottom: 24px;

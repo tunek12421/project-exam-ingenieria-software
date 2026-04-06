@@ -1,5 +1,5 @@
 from backend.src.config.database import TITLE_MAX_LENGTH
-from backend.src.models.task_model import Task
+from backend.src.models.task_model import TaskList, Subtask
 from backend.src.repositories.task_repository import TaskRepository
 
 
@@ -9,55 +9,76 @@ class ValidationError(Exception):
 
 
 class TaskNotFoundError(Exception):
-    """Error lanzado cuando no se encuentra una tarea."""
+    """Error lanzado cuando no se encuentra una tarea o subtarea."""
     pass
 
 
 class TaskService:
-    """Capa de logica de negocio para la gestion de tareas."""
+    """Capa de logica de negocio para la gestion de listas de tareas y subtareas."""
 
     def __init__(self, repository=None):
         self.repository = repository or TaskRepository()
 
-    def get_all_tasks(self):
-        """Retorna todas las tareas."""
-        return self.repository.find_all()
+    # --- Task Lists ---
 
-    def get_pending_tasks(self):
-        """Retorna solo las tareas pendientes."""
-        return self.repository.find_pending()
+    def get_all_lists(self):
+        """Retorna todas las listas de tareas con subtareas y progreso."""
+        return self.repository.find_all_lists()
 
-    def create_task(self, title, description=""):
-        """Crea una nueva tarea validando los datos de entrada."""
+    def create_list(self, title, description=""):
+        """Crea una nueva lista de tareas."""
         title = self._validate_title(title)
         description = description.strip() if description else ""
+        task_list = TaskList(title=title, description=description)
+        return self.repository.create_list(task_list)
 
-        task = Task(title=title, description=description)
-        return self.repository.create(task)
+    def delete_list(self, list_id):
+        """Elimina una lista de tareas."""
+        self._find_list_or_raise(list_id)
+        self.repository.delete_list(list_id)
 
-    def complete_task(self, task_id):
-        """Marca una tarea como completada."""
-        task = self._find_task_or_raise(task_id)
-        self.repository.update_status(task_id, True)
-        task.is_completed = True
-        return task
+    # --- Subtasks ---
 
-    def delete_task(self, task_id):
-        """Elimina una tarea por su ID."""
-        self._find_task_or_raise(task_id)
-        self.repository.delete(task_id)
+    def add_subtask(self, list_id, title):
+        """Agrega una subtarea a una lista existente."""
+        self._find_list_or_raise(list_id)
+        title = self._validate_title(title)
+        subtask = Subtask(task_list_id=list_id, title=title)
+        return self.repository.create_subtask(subtask)
 
-    def _find_task_or_raise(self, task_id):
-        """Busca una tarea o lanza TaskNotFoundError si no existe."""
-        task = self.repository.find_by_id(task_id)
-        if not task:
-            raise TaskNotFoundError(f"No se encontro la tarea con ID {task_id}")
-        return task
+    def toggle_subtask(self, subtask_id):
+        """Alterna el estado completado/pendiente de una subtarea."""
+        subtask = self._find_subtask_or_raise(subtask_id)
+        new_status = not subtask.is_completed
+        self.repository.toggle_subtask(subtask_id, new_status)
+        subtask.is_completed = new_status
+        return subtask
+
+    def delete_subtask(self, subtask_id):
+        """Elimina una subtarea."""
+        self._find_subtask_or_raise(subtask_id)
+        self.repository.delete_subtask(subtask_id)
+
+    # --- Helpers ---
+
+    def _find_list_or_raise(self, list_id):
+        """Busca una lista o lanza error si no existe."""
+        task_list = self.repository.find_list_by_id(list_id)
+        if not task_list:
+            raise TaskNotFoundError(f"No se encontro la lista con ID {list_id}")
+        return task_list
+
+    def _find_subtask_or_raise(self, subtask_id):
+        """Busca una subtarea o lanza error si no existe."""
+        subtask = self.repository.find_subtask_by_id(subtask_id)
+        if not subtask:
+            raise TaskNotFoundError(f"No se encontro la subtarea con ID {subtask_id}")
+        return subtask
 
     def _validate_title(self, title):
         """Valida que el titulo no este vacio ni sea demasiado largo."""
         if not title or not title.strip():
-            raise ValidationError("El titulo de la tarea no puede estar vacio")
+            raise ValidationError("El titulo no puede estar vacio")
         title = title.strip()
         if len(title) > TITLE_MAX_LENGTH:
             raise ValidationError(f"El titulo no puede exceder {TITLE_MAX_LENGTH} caracteres")

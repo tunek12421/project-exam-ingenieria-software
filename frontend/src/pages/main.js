@@ -1,38 +1,37 @@
-let currentFilter = 'all';
-
 document.addEventListener('DOMContentLoaded', () => {
-    loadTasks();
+    loadTaskLists();
 });
 
-async function loadTasks() {
-    const taskList = document.getElementById('task-list');
+async function loadTaskLists() {
+    const container = document.getElementById('task-lists-container');
     try {
-        const tasks = await ApiService.fetchTasks(currentFilter);
-        taskList.innerHTML = '';
-        if (tasks.length === 0) {
-            taskList.innerHTML = '<div class="empty-state">No hay tareas para mostrar</div>';
+        const lists = await ApiService.fetchTaskLists();
+        container.innerHTML = '';
+        if (lists.length === 0) {
+            container.innerHTML = '<div class="empty-state">No hay listas de tareas. Crea una con + New</div>';
             return;
         }
-        tasks.forEach(task => {
-            taskList.appendChild(createTaskCard(task));
+        lists.forEach(list => {
+            container.appendChild(createTaskListCard(list));
         });
     } catch (error) {
-        taskList.innerHTML = '<div class="empty-state">Error al cargar las tareas</div>';
+        container.innerHTML = '<div class="empty-state">Error al cargar las listas</div>';
     }
 }
 
-function toggleForm() {
-    const form = document.getElementById('task-form');
+// --- List Form ---
+function toggleListForm() {
+    const form = document.getElementById('list-form');
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
-        document.getElementById('input-title').focus();
+        document.getElementById('input-list-title').focus();
     }
 }
 
-async function handleCreateTask(event) {
+async function handleCreateList(event) {
     event.preventDefault();
-    const titleInput = document.getElementById('input-title');
-    const descInput = document.getElementById('input-description');
+    const titleInput = document.getElementById('input-list-title');
+    const descInput = document.getElementById('input-list-desc');
     const title = titleInput.value.trim();
     const description = descInput.value.trim();
 
@@ -42,45 +41,82 @@ async function handleCreateTask(event) {
     }
 
     try {
-        await ApiService.createTask(title, description);
+        await ApiService.createTaskList(title, description);
         titleInput.value = '';
         descInput.value = '';
-        toggleForm();
-        showNotification('Tarea creada correctamente');
-        loadTasks();
+        toggleListForm();
+        showNotification('Lista creada');
+        loadTaskLists();
     } catch (error) {
         alert(error.message);
     }
 }
 
-async function handleCompleteTask(taskId) {
+async function handleDeleteList(listId) {
+    if (!confirm('Eliminar esta lista y todas sus subtareas?')) return;
     try {
-        await ApiService.completeTask(taskId);
-        showNotification('Tarea completada');
-        loadTasks();
+        await ApiService.deleteTaskList(listId);
+        showNotification('Lista eliminada');
+        loadTaskLists();
     } catch (error) {
-        alert('Error al completar la tarea');
+        alert('Error al eliminar la lista');
     }
 }
 
-async function handleDeleteTask(taskId) {
-    if (!confirm('Eliminar esta tarea?')) return;
-    try {
-        await ApiService.deleteTask(taskId);
-        showNotification('Tarea eliminada');
-        loadTasks();
-    } catch (error) {
-        alert('Error al eliminar la tarea');
+// --- Expand / Collapse ---
+function toggleExpand(listId, button) {
+    const panel = document.getElementById(`subtasks-${listId}`);
+    panel.classList.toggle('open');
+    button.classList.toggle('expanded');
+}
+
+// --- Subtasks ---
+function toggleAddSubtask(listId) {
+    const form = document.getElementById(`add-subtask-${listId}`);
+    form.classList.toggle('open');
+    if (form.classList.contains('open')) {
+        document.getElementById(`input-subtask-${listId}`).focus();
     }
 }
 
-function filterTasks(filter, button) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-    loadTasks();
+async function handleAddSubtask(listId) {
+    const input = document.getElementById(`input-subtask-${listId}`);
+    const title = input.value.trim();
+    if (!title) {
+        alert('El nombre de la subtarea no puede estar vacio');
+        return;
+    }
+
+    try {
+        await ApiService.addSubtask(listId, title);
+        input.value = '';
+        showNotification('Subtarea agregada');
+        loadTaskLists();
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
+async function handleToggleSubtask(subtaskId) {
+    try {
+        await ApiService.toggleSubtask(subtaskId);
+        loadTaskLists();
+    } catch (error) {
+        alert('Error al cambiar estado de la subtarea');
+    }
+}
+
+async function handleDeleteSubtask(subtaskId) {
+    try {
+        await ApiService.deleteSubtask(subtaskId);
+        showNotification('Subtarea eliminada');
+        loadTaskLists();
+    } catch (error) {
+        alert('Error al eliminar la subtarea');
+    }
+}
+
+// --- Notification ---
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';

@@ -1,36 +1,57 @@
 const API_BASE_URL = '/api';
 
 const ApiService = {
-    async fetchTasks(filter = 'all') {
-        const response = await fetch(`${API_BASE_URL}/tasks?filter=${filter}`);
-        if (!response.ok) throw new Error('Error al obtener tareas');
+    // --- Task Lists ---
+    async fetchTaskLists() {
+        const response = await fetch(`${API_BASE_URL}/task-lists`);
+        if (!response.ok) throw new Error('Error al obtener listas');
         return response.json();
     },
 
-    async createTask(title, description) {
-        const response = await fetch(`${API_BASE_URL}/tasks`, {
+    async createTaskList(title, description) {
+        const response = await fetch(`${API_BASE_URL}/task-lists`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, description })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Error al crear tarea');
+        if (!response.ok) throw new Error(data.error || 'Error al crear lista');
         return data;
     },
 
-    async completeTask(taskId) {
-        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
-            method: 'PATCH'
+    async deleteTaskList(listId) {
+        const response = await fetch(`${API_BASE_URL}/task-lists/${listId}`, {
+            method: 'DELETE'
         });
-        if (!response.ok) throw new Error('Error al completar tarea');
+        if (!response.ok) throw new Error('Error al eliminar lista');
         return response.json();
     },
 
-    async deleteTask(taskId) {
-        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+    // --- Subtasks ---
+    async addSubtask(listId, title) {
+        const response = await fetch(`${API_BASE_URL}/task-lists/${listId}/subtasks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Error al crear subtarea');
+        return data;
+    },
+
+    async toggleSubtask(subtaskId) {
+        const response = await fetch(`${API_BASE_URL}/subtasks/${subtaskId}/toggle`, {
+            method: 'PATCH'
+        });
+        if (!response.ok) throw new Error('Error al cambiar estado');
+        return response.json();
+    },
+
+    async deleteSubtask(subtaskId) {
+        const response = await fetch(`${API_BASE_URL}/subtasks/${subtaskId}`, {
             method: 'DELETE'
         });
-        if (!response.ok) throw new Error('Error al eliminar tarea');
+        if (!response.ok) throw new Error('Error al eliminar subtarea');
         return response.json();
     }
 };

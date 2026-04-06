@@ -9,26 +9,24 @@
 <body>
     <div class="app-container">
         <header class="app-header">
-            <h1>Task List</h1>
-            <button id="btn-new-task" class="btn-new" onclick="toggleForm()">+ New</button>
+            <div class="header-left">
+                <span class="menu-icon">&#9776;</span>
+                <h1>Task List</h1>
+            </div>
+            <button id="btn-new" class="btn-new" onclick="toggleListForm()">+ New</button>
         </header>
 
-        <form id="task-form" class="task-form hidden" onsubmit="handleCreateTask(event)">
-            <input type="text" id="input-title" placeholder="Titulo de la tarea" required maxlength="200">
-            <textarea id="input-description" placeholder="Descripcion (opcional)" rows="2"></textarea>
+        <form id="list-form" class="list-form hidden" onsubmit="handleCreateList(event)">
+            <input type="text" id="input-list-title" placeholder="Titulo de la lista" required maxlength="200">
+            <textarea id="input-list-desc" placeholder="Descripcion (opcional)" rows="2"></textarea>
             <div class="form-actions">
                 <button type="submit" class="btn-save">Guardar</button>
-                <button type="button" class="btn-cancel" onclick="toggleForm()">Cancelar</button>
+                <button type="button" class="btn-cancel" onclick="toggleListForm()">Cancelar</button>
             </div>
         </form>
 
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterTasks('all', this)">Todas</button>
-            <button class="filter-btn" onclick="filterTasks('pending', this)">Pendientes</button>
-        </div>
-
-        <div id="task-list" class="task-list">
-            <!-- Las tareas se renderizan aqui -->
+        <div id="task-lists-container" class="task-lists-container">
+            <!-- Las listas se renderizan aqui -->
         </div>
     </div>
 
