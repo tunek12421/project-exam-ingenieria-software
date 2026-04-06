@@ -15,9 +15,9 @@ def get_task_lists():
 @task_blueprint.route('/task-lists', methods=['POST'])
 def create_task_list():
     """Crea una nueva lista de tareas."""
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data:
-        return jsonify({"error": "Se requiere un cuerpo JSON"}), 400
+        return jsonify({"error": "Se requiere un cuerpo JSON valido"}), 400
     try:
         task_list = task_service.create_list(
             title=data.get('title', ''),
@@ -41,9 +41,9 @@ def delete_task_list(list_id):
 @task_blueprint.route('/task-lists/<int:list_id>/subtasks', methods=['POST'])
 def add_subtask(list_id):
     """Agrega una subtarea a una lista."""
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data:
-        return jsonify({"error": "Se requiere un cuerpo JSON"}), 400
+        return jsonify({"error": "Se requiere un cuerpo JSON valido"}), 400
     try:
         subtask = task_service.add_subtask(
             list_id=list_id,

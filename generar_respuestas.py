@@ -1,324 +1,266 @@
 from docx import Document
-from docx.shared import Pt, Inches, RGBColor
+from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 doc = Document()
 
 style = doc.styles['Normal']
-font = style.font
-font.name = 'Arial'
-font.size = Pt(11)
+style.font.name = 'Arial'
+style.font.size = Pt(11)
 
-# === PORTADA ===
-for _ in range(4):
+# --- Portada ---
+for _ in range(6):
     doc.add_paragraph()
 
-title = doc.add_paragraph()
-title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = title.add_run('EXAMEN FINAL')
+p = doc.add_paragraph()
+p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run = p.add_run('EXAMEN FINAL')
 run.bold = True
-run.font.size = Pt(22)
+run.font.size = Pt(20)
 
-subtitle = doc.add_paragraph()
-subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = subtitle.add_run('Ingenieria de Software II')
-run.font.size = Pt(16)
-run.font.color.rgb = RGBColor(80, 80, 80)
+p = doc.add_paragraph()
+p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+p.add_run('Ingenieria de Software II').font.size = Pt(14)
 
 doc.add_paragraph()
 
-info = doc.add_paragraph()
-info.alignment = WD_ALIGN_PARAGRAPH.CENTER
-info.add_run('Sistema de Gestion de Tareas').font.size = Pt(14)
+p = doc.add_paragraph()
+p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+p.add_run('Enrique Lujan')
 
-doc.add_paragraph()
-info2 = doc.add_paragraph()
-info2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-info2.add_run('Repositorio: https://github.com/tunek12421/project-exam-ingenieria-software').font.size = Pt(10)
+p = doc.add_paragraph()
+p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+p.add_run('Repositorio: github.com/tunek12421/project-exam-ingenieria-software')
 
-info3 = doc.add_paragraph()
-info3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-info3.add_run('Rama: examen-final').font.size = Pt(10)
+p = doc.add_paragraph()
+p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+p.add_run('Rama: examen-enrique-lujan')
 
 doc.add_page_break()
 
-# === PARTE A: TEORIA ===
-doc.add_heading('A. Parte Teorica (10 puntos)', level=1)
+# ============================================================
+# PARTE A - TEORIA
+# ============================================================
+doc.add_heading('A. Parte Teorica', level=1)
 
-doc.add_heading('1. Diferencia entre arquitectura monolitica y arquitectura por capas', level=2)
+doc.add_heading('1. Diferencia entre arquitectura monolitica y por capas', level=2)
 doc.add_paragraph(
-    'La arquitectura monolitica agrupa toda la logica del sistema (presentacion, negocio y datos) '
-    'en un solo bloque desplegable, sin separacion clara de responsabilidades. Cualquier cambio '
-    'requiere recompilar y redesplegar todo el sistema.'
+    'En la monolitica todo el sistema esta en un solo bloque: presentacion, logica y datos juntos. '
+    'Cualquier cambio obliga a redesplegar todo.'
 )
 doc.add_paragraph(
-    'La arquitectura por capas divide el sistema en capas independientes (presentacion, logica de '
-    'negocio, acceso a datos), donde cada capa tiene una responsabilidad especifica y se comunica '
-    'solo con las capas adyacentes. Esto mejora la mantenibilidad, testabilidad y permite modificar '
-    'una capa sin afectar directamente a las demas.'
+    'En la arquitectura por capas se separa en niveles independientes (presentacion, negocio, datos). '
+    'Cada capa tiene su responsabilidad y solo se comunica con la capa de al lado. '
+    'Esto hace que sea mas facil de mantener y de probar.'
 )
 
-doc.add_heading('2. Por que la refactorizacion no debe cambiar la funcionalidad del software', level=2)
+doc.add_heading('2. Por que la refactorizacion no debe cambiar la funcionalidad', level=2)
 doc.add_paragraph(
-    'Porque el objetivo de la refactorizacion es mejorar la estructura interna del codigo (legibilidad, '
-    'mantenibilidad, eliminacion de duplicados) sin alterar el comportamiento observable del sistema. '
-    'Si se cambia la funcionalidad, ya no es refactorizacion sino una modificacion funcional, y se pierde '
-    'la garantia de que el sistema sigue funcionando correctamente. Las pruebas existentes deben seguir '
-    'pasando antes y despues de la refactorizacion, sirviendo como red de seguridad.'
+    'Porque la idea es mejorar como esta escrito el codigo por dentro, no lo que hace. '
+    'Si cambias el comportamiento ya no es refactorizacion, es otra cosa. '
+    'Las pruebas que ya existian tienen que seguir pasando igual antes y despues.'
 )
 
-doc.add_heading('3. Importancia de las pruebas automatizadas en un proyecto de software', level=2)
+doc.add_heading('3. Importancia de las pruebas automatizadas', level=2)
 doc.add_paragraph(
-    'Las pruebas automatizadas permiten detectar errores de forma temprana y repetible, sin intervencion '
-    'manual. Garantizan que los cambios en el codigo (refactorizaciones, nuevas funcionalidades) no rompan '
-    'la funcionalidad existente (pruebas de regresion). Reducen costos a largo plazo, aumentan la confianza '
-    'en el codigo, facilitan la integracion continua (CI/CD) y sirven como documentacion viva del '
-    'comportamiento esperado del sistema.'
+    'Permiten detectar errores rapido y de forma repetible sin tener que probar a mano cada vez. '
+    'Cuando haces cambios en el codigo, las pruebas te avisan si rompiste algo que antes funcionaba. '
+    'Tambien sirven como documentacion de como debe comportarse el sistema.'
 )
 
 doc.add_page_break()
 
-# === PARTE B: PRACTICA ===
-doc.add_heading('B. Parte Practica (90 puntos)', level=1)
+# ============================================================
+# PARTE B - PRACTICA
+# ============================================================
+doc.add_heading('B. Parte Practica', level=1)
 
-# Actividad 1
-doc.add_heading('Actividad 1: Organizacion inicial del proyecto y control de versiones', level=2)
-doc.add_paragraph('Tecnologias utilizadas:')
-bullets = [
-    'Backend: Python 3 con Flask',
-    'Frontend: HTML5, CSS3, JavaScript vanilla',
-    'Base de datos: SQLite',
-    'Pruebas: unittest + pytest',
-    'Contenedores: Docker + Docker Compose',
-]
-for b in bullets:
-    doc.add_paragraph(b, style='List Bullet')
+# --- Actividad 1 ---
+doc.add_heading('Actividad 1 - Organizacion y control de versiones', level=2)
+
+doc.add_paragraph('Stack usado:')
+for item in ['Backend: Python 3 + Flask', 'Frontend: HTML/CSS/JS', 'BD: SQLite',
+             'Tests: pytest', 'Docker + Docker Compose']:
+    doc.add_paragraph(item, style='List Bullet')
 
 doc.add_paragraph()
 doc.add_paragraph('Estructura del proyecto:')
-structure = """project-exam/
-├── backend/
-│   ├── src/
-│   │   ├── config/         # Configuracion de BD + constantes
-│   │   ├── controllers/    # Endpoints REST (Flask Blueprints)
-│   │   ├── services/       # Logica de negocio y validaciones
-│   │   ├── models/         # Modelo de datos Task
-│   │   └── repositories/   # Acceso a datos (queries SQL)
-│   └── tests/              # Pruebas unitarias
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # Componentes (task_card)
-│   │   ├── pages/          # Logica de paginas (main)
-│   │   ├── services/       # Cliente API (api_service)
-│   │   └── assets/         # Estilos CSS
-│   └── index.html
-├── database/
-│   ├── schema.sql          # Esquema de la BD
-│   └── seed.sql            # Datos iniciales
-├── docs/
-│   └── architecture.md
-├── tests/integration/      # Pruebas de integracion
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── .gitignore
-├── .dockerignore
-└── README.md"""
-
+estructura = (
+    'project-exam/\n'
+    '  backend/src/ -> config, controllers, services, models, repositories\n'
+    '  backend/tests/ -> pruebas unitarias\n'
+    '  frontend/src/ -> components, pages, services, assets\n'
+    '  database/ -> schema.sql, seed.sql\n'
+    '  tests/integration/ -> pruebas de integracion\n'
+    '  docs/architecture.md\n'
+    '  Dockerfile, docker-compose.yml, README.md'
+)
 p = doc.add_paragraph()
-run = p.add_run(structure)
+run = p.add_run(estructura)
 run.font.name = 'Consolas'
-run.font.size = Pt(8)
+run.font.size = Pt(9)
 
 doc.add_paragraph()
-doc.add_paragraph('Historial de commits en rama examen-final:')
+doc.add_paragraph('Commits realizados en la rama examen-enrique-lujan:')
 commits = [
-    'feat: estructura base del proyecto con modelo, repositorio y configuracion de BD',
-    'feat: implementacion de API REST y frontend para gestion de tareas',
-    'test: pruebas unitarias e integracion + documentacion arquitectonica',
-    'refactor: correccion de code smells y mejora de calidad de codigo',
-    'feat: dockerizacion del proyecto con Dockerfile y docker-compose',
+    'feat: estructura base con modelo, repositorio y configuracion de BD',
+    'feat: implementacion de API REST y frontend',
+    'test: pruebas unitarias e integracion + documentacion',
+    'refactor: correccion de code smells',
+    'feat: dockerizacion con Dockerfile y docker-compose',
+    'docs: actualizacion del README',
+    'feat: rediseno con listas de tareas, subtareas y progreso circular',
 ]
 for i, c in enumerate(commits, 1):
     doc.add_paragraph(f'{i}. {c}')
 
-# Actividad 2
-doc.add_heading('Actividad 2: Identificacion de estructura y arquitectura del sistema', level=2)
+# --- Actividad 2 ---
+doc.add_heading('Actividad 2 - Arquitectura del sistema', level=2)
 
-doc.add_heading('Tipo de arquitectura', level=3)
 doc.add_paragraph(
-    'El proyecto implementa una arquitectura por capas (Layered Architecture) con separacion '
-    'clara de responsabilidades:'
+    'El proyecto usa una arquitectura por capas. Cada parte tiene una responsabilidad clara:'
 )
 capas = [
-    'Capa de presentacion (Frontend): Interfaz HTML/CSS/JS que consume la API REST.',
-    'Capa de controladores: Recibe peticiones HTTP, delega al servicio correspondiente.',
-    'Capa de servicios (Logica de negocio): Validaciones y reglas de negocio.',
-    'Capa de repositorios (Acceso a datos): Encapsula consultas SQL.',
-    'Capa de modelos: Define las entidades del dominio.',
+    'Frontend (HTML/JS) -> lo que ve el usuario, consume la API',
+    'Controllers -> reciben las peticiones HTTP y las pasan al servicio',
+    'Services -> logica de negocio y validaciones',
+    'Repositories -> consultas a la base de datos',
+    'Models -> definen la estructura de los datos (TaskList, Subtask)',
 ]
 for c in capas:
     doc.add_paragraph(c, style='List Bullet')
 
-doc.add_heading('Modulos identificados', level=3)
-modulos = [
-    ('config/database.py', 'Conexion SQLite con context manager + constantes'),
-    ('models/task_model.py', 'Modelo Task con serializacion y deserializacion'),
-    ('repositories/task_repository.py', 'CRUD a nivel de base de datos'),
-    ('services/task_service.py', 'Validaciones y logica de negocio'),
-    ('controllers/task_controller.py', 'Endpoints REST de la API'),
-    ('frontend/src/services/', 'Cliente HTTP para consumir la API'),
-    ('frontend/src/components/', 'Componentes visuales reutilizables'),
-]
-table = doc.add_table(rows=1, cols=2)
-table.style = 'Table Grid'
-hdr = table.rows[0].cells
-hdr[0].text = 'Modulo'
-hdr[1].text = 'Responsabilidad'
-for mod, resp in modulos:
-    row = table.add_row().cells
-    row[0].text = mod
-    row[1].text = resp
-
-doc.add_heading('Mejoras arquitectonicas propuestas', level=3)
+doc.add_paragraph()
+doc.add_paragraph('Mejoras que se podrian hacer:')
 mejoras = [
-    'Inyeccion de dependencias formal con contenedor DI.',
-    'Sistema de migraciones (Alembic) en lugar de schema.sql directo.',
-    'Middleware centralizado de manejo de errores en Flask.',
-    'Autenticacion con JWT para proteger endpoints.',
-    'Migrar frontend a framework (Vue/React) para mejor escalabilidad.',
+    'Usar un sistema de migraciones como Alembic en vez de schema.sql',
+    'Agregar autenticacion con JWT',
+    'Manejo centralizado de errores con un middleware',
+    'Migrar el frontend a un framework como Vue o React',
 ]
 for m in mejoras:
     doc.add_paragraph(m, style='List Bullet')
 
-# Actividad 3
-doc.add_heading('Actividad 3: Refactorizacion de codigo', level=2)
-doc.add_paragraph('Code smells identificados y corregidos:')
+# --- Actividad 3 ---
+doc.add_heading('Actividad 3 - Refactorizacion', level=2)
+
+doc.add_paragraph('Problemas que encontre y como los corregi:')
+doc.add_paragraph()
 
 smells = [
-    ('Resource Leak (CRITICO)', 'Conexiones a BD sin try/finally',
-     'Se implemento context manager con @contextmanager para garantizar cierre seguro de conexiones.'),
-    ('Codigo SQL duplicado', 'Misma query SELECT repetida en 3 metodos del repositorio',
-     'Se extrajo a constante de clase _BASE_SELECT (principio DRY).'),
-    ('Import sin usar', 'from datetime import datetime en task_model.py',
-     'Se elimino el import no utilizado.'),
-    ('Magic number', 'Valor 200 hardcodeado para longitud maxima de titulo',
-     'Se centralizo en constante TITLE_MAX_LENGTH en config/database.py.'),
-    ('Codigo duplicado en servicio', 'Misma validacion de tarea existente en complete_task y delete_task',
-     'Se extrajo a metodo privado _find_task_or_raise().'),
-    ('Sin validacion frontend', 'Datos enviados sin validar al API',
-     'Se agrego trim() y validacion de titulo vacio antes de enviar.'),
-    ('Sin feedback UX', 'Solo alertas de error, sin confirmacion visual de exito',
-     'Se implemento sistema de notificaciones toast con animacion CSS.'),
+    ('Conexiones a la BD no se cerraban si habia error',
+     'Use context manager (with) para que siempre se cierre la conexion'),
+    ('La misma query SQL repetida en 3 metodos',
+     'La extraje a una constante _BASE_SELECT'),
+    ('Import de datetime que no se usaba',
+     'Lo elimine'),
+    ('El numero 200 estaba puesto directo en el codigo',
+     'Lo movi a una constante TITLE_MAX_LENGTH en config'),
+    ('La misma validacion de "tarea no encontrada" en dos metodos',
+     'Cree un metodo reutilizable _find_list_or_raise()'),
+    ('No habia validacion en el frontend antes de enviar datos',
+     'Agregue trim() y verificacion de campo vacio'),
+    ('No habia aviso cuando algo salia bien',
+     'Agregue notificaciones tipo toast'),
 ]
 
-table2 = doc.add_table(rows=1, cols=3)
-table2.style = 'Table Grid'
-hdr2 = table2.rows[0].cells
-hdr2[0].text = 'Code Smell'
-hdr2[1].text = 'Problema'
-hdr2[2].text = 'Solucion aplicada'
-for smell, prob, sol in smells:
-    row = table2.add_row().cells
-    row[0].text = smell
-    row[1].text = prob
-    row[2].text = sol
+for problema, solucion in smells:
+    p = doc.add_paragraph()
+    run = p.add_run('Problema: ')
+    run.bold = True
+    p.add_run(problema)
+    p = doc.add_paragraph()
+    run = p.add_run('Solucion: ')
+    run.bold = True
+    p.add_run(solucion)
+    doc.add_paragraph()
 
-# Actividad 4
-doc.add_heading('Actividad 4: Implementacion de mejora funcional', level=2)
-doc.add_paragraph('Funcionalidades implementadas en el sistema:')
-funcionalidades = [
-    'Registrar nueva tarea con titulo y descripcion.',
-    'Listar todas las tareas ordenadas por fecha.',
-    'Filtrar tareas pendientes (no completadas).',
-    'Marcar una tarea como completada.',
-    'Eliminar una tarea con confirmacion.',
-    'Validacion de datos vacios (backend y frontend).',
-    'Notificaciones visuales de exito.',
+# --- Actividad 4 ---
+doc.add_heading('Actividad 4 - Funcionalidad implementada', level=2)
+
+doc.add_paragraph('El sistema permite:')
+funciones = [
+    'Crear listas de tareas con titulo y descripcion',
+    'Agregar subtareas dentro de cada lista',
+    'Marcar y desmarcar subtareas (toggle)',
+    'Ver el porcentaje de avance con un circulo de progreso',
+    'Expandir y colapsar las subtareas de cada lista',
+    'Eliminar listas y subtareas',
+    'Validacion de campos vacios en frontend y backend',
 ]
-for f in funcionalidades:
+for f in funciones:
     doc.add_paragraph(f, style='List Bullet')
 
 doc.add_paragraph()
-doc.add_paragraph('Endpoints de la API REST:')
+doc.add_paragraph('Endpoints de la API:')
 endpoints = [
-    ('GET', '/api/tasks', 'Listar todas las tareas'),
-    ('GET', '/api/tasks?filter=pending', 'Listar tareas pendientes'),
-    ('POST', '/api/tasks', 'Crear nueva tarea'),
-    ('PATCH', '/api/tasks/<id>/complete', 'Marcar como completada'),
-    ('DELETE', '/api/tasks/<id>', 'Eliminar tarea'),
+    ('GET /api/task-lists', 'Obtener todas las listas con subtareas'),
+    ('POST /api/task-lists', 'Crear una lista nueva'),
+    ('DELETE /api/task-lists/<id>', 'Eliminar una lista'),
+    ('POST /api/task-lists/<id>/subtasks', 'Agregar subtarea a una lista'),
+    ('PATCH /api/subtasks/<id>/toggle', 'Marcar o desmarcar subtarea'),
+    ('DELETE /api/subtasks/<id>', 'Eliminar una subtarea'),
 ]
-table3 = doc.add_table(rows=1, cols=3)
-table3.style = 'Table Grid'
-hdr3 = table3.rows[0].cells
-hdr3[0].text = 'Metodo'
-hdr3[1].text = 'Endpoint'
-hdr3[2].text = 'Descripcion'
-for met, ep, desc in endpoints:
-    row = table3.add_row().cells
-    row[0].text = met
-    row[1].text = ep
-    row[2].text = desc
+for ep, desc in endpoints:
+    p = doc.add_paragraph()
+    run = p.add_run(ep)
+    run.bold = True
+    p.add_run(f' - {desc}')
 
-# Actividad 5
-doc.add_heading('Actividad 5: Pruebas de software', level=2)
-doc.add_paragraph('Se crearon 12 pruebas automatizadas (8 unitarias + 4 de integracion):')
+# --- Actividad 5 ---
+doc.add_heading('Actividad 5 - Pruebas', level=2)
 
-doc.add_heading('Pruebas unitarias (backend/tests/test_task_service.py)', level=3)
-unit_tests = [
-    'test_create_task_with_valid_data - Verifica creacion correcta con datos validos.',
-    'test_create_task_with_empty_title_raises_error - Titulo vacio lanza ValidationError.',
-    'test_create_task_with_whitespace_title_raises_error - Titulo con solo espacios es rechazado.',
-    'test_create_task_with_long_title_raises_error - Titulo mayor a 200 caracteres es rechazado.',
-    'test_complete_task_success - Completar tarea existente funciona correctamente.',
-    'test_complete_nonexistent_task_raises_error - Completar tarea inexistente lanza error.',
-    'test_delete_nonexistent_task_raises_error - Eliminar tarea inexistente lanza error.',
-    'test_get_all_tasks - Obtener todas las tareas retorna lista correcta.',
+doc.add_paragraph('Se crearon 21 pruebas automatizadas. Todas pasan.')
+doc.add_paragraph()
+
+doc.add_paragraph('Unitarias (15):')
+unitarias = [
+    'Crear lista con datos validos',
+    'Titulo vacio lanza error',
+    'Titulo con solo espacios lanza error',
+    'Titulo muy largo lanza error',
+    'Eliminar lista existente',
+    'Eliminar lista inexistente lanza error',
+    'Agregar subtarea a lista existente',
+    'Agregar subtarea a lista inexistente lanza error',
+    'Marcar subtarea como completada (toggle on)',
+    'Desmarcar subtarea completada (toggle off)',
+    'Toggle en subtarea inexistente lanza error',
+    'Obtener todas las listas',
+    'Progreso 0% sin subtareas',
+    'Progreso 100% con todas completadas',
+    'Progreso 25% con 1 de 4 completadas',
 ]
-for t in unit_tests:
-    doc.add_paragraph(t, style='List Bullet')
-
-doc.add_heading('Pruebas de integracion (tests/integration/test_api_integration.py)', level=3)
-int_tests = [
-    'test_create_and_list_tasks - Flujo completo: crear tarea y verificar en listado.',
-    'test_create_task_without_title_returns_400 - Crear sin titulo retorna error 400.',
-    'test_complete_task_flow - Crear y luego completar una tarea.',
-    'test_delete_nonexistent_task_returns_404 - Eliminar inexistente retorna 404.',
-]
-for t in int_tests:
+for t in unitarias:
     doc.add_paragraph(t, style='List Bullet')
 
 doc.add_paragraph()
+doc.add_paragraph('Integracion (6):')
+integracion = [
+    'Crear lista y verificar en listado',
+    'Crear lista sin titulo da error 400',
+    'Agregar subtareas y verificar progreso',
+    'Toggle: marcar y desmarcar una subtarea',
+    'Eliminar lista elimina sus subtareas (cascade)',
+    'Eliminar lista inexistente da error 404',
+]
+for t in integracion:
+    doc.add_paragraph(t, style='List Bullet')
+
+doc.add_paragraph()
+doc.add_paragraph('Evidencia de ejecucion:')
+evidencia = (
+    '$ python3 -m pytest -v\n'
+    '21 passed in 0.39s\n'
+    '\n'
+    'Todas las pruebas unitarias y de integracion pasaron correctamente.'
+)
 p = doc.add_paragraph()
-run = p.add_run('Resultado de ejecucion: 12 passed in 0.19s')
-run.bold = True
-run.font.color.rgb = RGBColor(0, 128, 0)
+run = p.add_run(evidencia)
+run.font.name = 'Consolas'
+run.font.size = Pt(9)
 
-doc.add_paragraph()
-evidencia = """$ python3 -m pytest -v
-============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-7.4.4
-
-backend/tests/test_task_service.py::TestTaskService::test_complete_nonexistent_task_raises_error PASSED [  8%]
-backend/tests/test_task_service.py::TestTaskService::test_complete_task_success PASSED [ 16%]
-backend/tests/test_task_service.py::TestTaskService::test_create_task_with_empty_title_raises_error PASSED [ 25%]
-backend/tests/test_task_service.py::TestTaskService::test_create_task_with_long_title_raises_error PASSED [ 33%]
-backend/tests/test_task_service.py::TestTaskService::test_create_task_with_valid_data PASSED [ 41%]
-backend/tests/test_task_service.py::TestTaskService::test_create_task_with_whitespace_title_raises_error PASSED [ 50%]
-backend/tests/test_task_service.py::TestTaskService::test_delete_nonexistent_task_raises_error PASSED [ 58%]
-backend/tests/test_task_service.py::TestTaskService::test_get_all_tasks PASSED [ 66%]
-tests/integration/test_api_integration.py::TestTaskAPIIntegration::test_complete_task_flow PASSED [ 75%]
-tests/integration/test_api_integration.py::TestTaskAPIIntegration::test_create_and_list_tasks PASSED [ 83%]
-tests/integration/test_api_integration.py::TestTaskAPIIntegration::test_create_task_without_title_returns_400 PASSED [ 91%]
-tests/integration/test_api_integration.py::TestTaskAPIIntegration::test_delete_nonexistent_task_returns_404 PASSED [100%]
-
-============================== 12 passed in 0.19s =============================="""
-
-p2 = doc.add_paragraph()
-run2 = p2.add_run(evidencia)
-run2.font.name = 'Consolas'
-run2.font.size = Pt(7)
-
-output_path = '/home/tunek/Descargas/DOCUMENTACION/project-exam/Examen_Final_Respuestas.docx'
-doc.save(output_path)
-print(f'Documento generado: {output_path}')
+# --- Guardar ---
+output = '/home/tunek/Descargas/DOCUMENTACION/project-exam/Examen_Final_Respuestas.docx'
+doc.save(output)
+print(f'Documento generado: {output}')
